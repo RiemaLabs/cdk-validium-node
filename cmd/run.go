@@ -328,7 +328,6 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 		return nil, fmt.Errorf("error getting data availability protocol name: %v", err)
 	}
 	var daBackend dataavailability.DABackender
-	daProtocolName = string(dataavailability.Nubit)
 	switch daProtocolName {
 	case string(dataavailability.DataAvailabilityCommittee):
 		var (
@@ -355,7 +354,7 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 		if err != nil {
 			return nil, err
 		}
-	case string(dataavailability.Nubit):
+	case string(dataavailability.DataAvailabilityNubitDA):
 		var (
 			pk  *ecdsa.PrivateKey
 			err error
@@ -367,16 +366,7 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 			}
 		}
 
-		dacAddr, err := etherman.GetDAProtocolAddr()
-		if err != nil {
-			return nil, fmt.Errorf("error getting trusted sequencer URI. Error: %v", err)
-		}
-
-		daBackend, err = nubit.NewNubitDABackend(
-			c.Etherman.URL,
-			dacAddr,
-			pk,
-		)
+		daBackend, err = nubit.NewNubitDABackend(&c.DataAvailability, pk)
 		if err != nil {
 			return nil, err
 		}

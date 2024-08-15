@@ -181,6 +181,13 @@ AggLayerTxTimeout = "5m"
 AggLayerURL = "http://zkevm-agglayer"
 SequencerPrivateKey = {Path = "/pk/sequencer.keystore", Password = "testonly"}
 
+[DataAvailability]
+NubitRpcURL = "http://127.0.0.1:26658"
+NubitAuthKey = ""
+NubitNamespace = "xlayer"
+NubitGetProofMaxRetry = "10"
+NubitGetProofWaitPeriod = "5s"
+
 [L2GasPriceSuggester]
 Type = "follower"
 UpdatePeriod = "10s"

@@ -152,11 +152,11 @@ type signatureMsg struct {
 
 // PostSequence sends the sequence data to the data availability backend, and returns the dataAvailabilityMessage
 // as expected by the contract
-func (s *DataCommitteeBackend) PostSequence(ctx context.Context, batchesData [][]byte) ([]byte, []byte, error) {
+func (s *DataCommitteeBackend) PostSequence(ctx context.Context, batchesData [][]byte) ([]byte, error) {
 	// Get current committee
 	committee, err := s.getCurrentDataCommittee()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// Authenticate as trusted sequencer by signing the sequences
@@ -166,7 +166,7 @@ func (s *DataCommitteeBackend) PostSequence(ctx context.Context, batchesData [][
 	}
 	signedSequence, err := sequence.Sign(s.privKey)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// Request signatures to all members in parallel
@@ -189,7 +189,7 @@ func (s *DataCommitteeBackend) PostSequence(ctx context.Context, batchesData [][
 			failedToCollect++
 			if len(committee.Members)-int(failedToCollect) < int(committee.RequiredSignatures) {
 				cancelSignatureCollection()
-				return nil, nil, errors.New("too many members failed to send their signature")
+				return nil, errors.New("too many members failed to send their signature")
 			}
 		} else {
 			log.Infof("received signature from %s", msg.addr)
@@ -201,7 +201,7 @@ func (s *DataCommitteeBackend) PostSequence(ctx context.Context, batchesData [][
 	// Stop requesting as soon as we have N valid signatures
 	cancelSignatureCollection()
 
-	return buildSignaturesAndAddrs(signatureMsgs(msgs), committee.Members), nil, nil
+	return buildSignaturesAndAddrs(signatureMsgs(msgs), committee.Members), nil
 }
 
 func requestSignatureFromMember(ctx context.Context, signedSequence daTypes.SignedSequence, member DataCommitteeMember, ch chan signatureMsg) {
