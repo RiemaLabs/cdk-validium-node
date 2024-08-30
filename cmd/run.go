@@ -21,7 +21,6 @@ import (
 	"github.com/0xPolygonHermez/zkevm-node/config"
 	"github.com/0xPolygonHermez/zkevm-node/dataavailability"
 	"github.com/0xPolygonHermez/zkevm-node/dataavailability/datacommittee"
-	"github.com/0xPolygonHermez/zkevm-node/dataavailability/nubit"
 	"github.com/0xPolygonHermez/zkevm-node/db"
 	"github.com/0xPolygonHermez/zkevm-node/etherman"
 	"github.com/0xPolygonHermez/zkevm-node/ethtxmanager"
@@ -328,7 +327,7 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 		return nil, fmt.Errorf("error getting data availability protocol name: %v", err)
 	}
 	var daBackend dataavailability.DABackender
-	daProtocolName = string(dataavailability.Nubit)
+	//daProtocolName = string(dataavailability.Nubit)
 	switch daProtocolName {
 	case string(dataavailability.DataAvailabilityCommittee):
 		var (
@@ -351,19 +350,6 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 			dacAddr,
 			pk,
 			dataCommitteeClient.NewFactory(),
-		)
-		if err != nil {
-			return nil, err
-		}
-	case string(dataavailability.Nubit):
-		dacAddr, err := etherman.GetDAProtocolAddr()
-		if err != nil {
-			return nil, fmt.Errorf("error getting trusted sequencer URI. Error: %v", err)
-		}
-
-		daBackend, err = nubit.NewNubitDABackend(
-			c.Etherman.URL,
-			dacAddr,
 		)
 		if err != nil {
 			return nil, err
