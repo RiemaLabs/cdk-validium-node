@@ -4,11 +4,13 @@ import (
 	"crypto/ecdsa"
 	"errors"
 	"fmt"
-	"github.com/0xPolygonHermez/zkevm-node/dataavailability/nubit"
 	"math/big"
 	"math/rand"
 	"sort"
 	"strings"
+
+	"github.com/0xPolygonHermez/zkevm-node/dataavailability"
+	"github.com/0xPolygonHermez/zkevm-node/dataavailability/nubit"
 
 	"github.com/0xPolygon/cdk-data-availability/client"
 	daTypes "github.com/0xPolygon/cdk-data-availability/types"
@@ -54,6 +56,7 @@ func New(
 	dataCommitteeAddr common.Address,
 	privKey *ecdsa.PrivateKey,
 	dataCommitteeClientFactory client.Factory,
+	cfg *dataavailability.Config,
 ) (*DataCommitteeBackend, error) {
 	ethClient, err := ethclient.Dial(l1RPCURL)
 	if err != nil {
@@ -65,7 +68,7 @@ func New(
 		return nil, err
 	}
 
-	backend, err := nubit.NewNubitDABackend()
+	backend, err := nubit.NewNubitDABackend(cfg.NubitNodeRpcURL, cfg.AuthKey, cfg.AppName)
 	if err != nil {
 		log.Errorf("error NewNubitDABackend  %s: %+v", l1RPCURL, err)
 		return nil, err
@@ -98,13 +101,19 @@ func (d *DataCommitteeBackend) Init() error {
 
 // GetSequence gets backend data one hash at a time. This should be optimized on the DAC side to get them all at once.
 func (d *DataCommitteeBackend) GetSequence(ctx context.Context, hashes []common.Hash, dataAvailabilityMessage []byte) ([][]byte, error) {
+	if len(dataAvailabilityMessage) < 40 {
+		return nil, fmt.Errorf("dataAvailabilityMessage is too short, expect at least %d bytes, actual %d ", nubit.NubitBatchDADataSize, len(dataAvailabilityMessage))
+	}
+
 	// TODO: optimize this on the DAC side by implementing a multi batch retrieve api
 	nubitData := make([]byte, 40)
-	copy(nubitData, dataAvailabilityMessage[len(dataAvailabilityMessage)-40:])
+	copy(nubitData, dataAvailabilityMessage[:40])
 	sequence, err := d.NubitDA.GetSequence(ctx, hashes, nubitData)
 	if err == nil {
-		return sequence, err
+		return sequence, nil
 	}
+	log.Warnf("error getting sequence from NubitDA: %s \n", err)
+
 	var batchData [][]byte
 	for _, h := range hashes {
 		data, err := d.GetBatchL2Data(h)
@@ -222,7 +231,7 @@ func (s *DataCommitteeBackend) PostSequence(ctx context.Context, batchesData [][
 	// Stop requesting as soon as we have N valid signatures
 	cancelSignatureCollection()
 	resData := buildSignaturesAndAddrs(signatureMsgs(msgs), committee.Members)
-	resData = append(resData, nubitData...)
+	resData = append(nubitData, resData...)
 
 	return resData, nil
 }

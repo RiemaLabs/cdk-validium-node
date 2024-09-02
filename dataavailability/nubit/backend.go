@@ -3,6 +3,7 @@ package nubit
 import (
 	"context"
 	"fmt"
+
 	"github.com/0xPolygonHermez/zkevm-node/log"
 	share "github.com/RiemaLabs/nubit-node/da"
 	client "github.com/RiemaLabs/nubit-node/rpc/rpc/client"
@@ -11,42 +12,22 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// DataCommitteeMember represents a member of the Data Committee
-type DataCommitteeMember struct {
-	Addr common.Address
-	URL  string
-}
-
-type DataCommittee struct {
-	AddressesHash      common.Hash
-	Members            []DataCommitteeMember
-	RequiredSignatures uint64
-}
-
 type NubitDABackend struct {
 	ctx    context.Context
-	config *Config
 	ns     namespace.Namespace
 	client *client.Client
 }
 
-func NewNubitDABackend() (*NubitDABackend, error) {
-	var config Config
-	err := config.GetConfig("/app/nubit-config.json")
-	if err != nil {
-		log.Fatalf("cannot get config:%w", err)
-	}
-	log.Infof("⚙️     Nubit config : %#v ", config)
+func NewNubitDABackend(rplURL, authKey, appName string) (*NubitDABackend, error) {
 
-	cn, err := client.NewClient(context.TODO(), config.RpcURL, config.AuthKey)
+	cn, err := client.NewClient(context.TODO(), rplURL, authKey)
 	if err != nil {
 		return nil, err
 	}
-	name := namespace.MustNewV0([]byte(config.Namespace))
+	name := namespace.MustNewV0([]byte(appName))
 
 	log.Infof("⚙️     Nubit Namespace : %s ", string(name.ID))
 	return &NubitDABackend{
-		config: &config,
 		ns:     name,
 		client: cn,
 		ctx:    context.Background(),
@@ -87,7 +68,7 @@ func (a *NubitDABackend) PostSequence(ctx context.Context, batchesData [][]byte)
 	}
 
 	var batchDAData BatchDAData
-	batchDAData.Commitment = body.Commitment
+	copy(batchDAData.Commitment[:], body.Commitment)
 
 	batchDAData.BlockNumber = int64(blockNumber)
 	log.Infof("🏆  Nubit prepared DA data:%+v", batchDAData)
@@ -111,7 +92,7 @@ func (a *NubitDABackend) GetSequence(ctx context.Context, batchHashes []common.H
 		return nil, err
 	}
 	log.Infof("🏆     Nubit GetSequence batchDAData:%+v", batchDAData)
-	blob, err := a.client.Blob.Get(context.TODO(), uint64(batchDAData.BlockNumber), a.ns.Bytes(), batchDAData.Commitment)
+	blob, err := a.client.Blob.Get(context.TODO(), uint64(batchDAData.BlockNumber), a.ns.Bytes(), batchDAData.Commitment[:])
 	if err != nil {
 		log.Errorf("🏆    NubitDABackend.GetSequence.Blob.Get:%s", err)
 		return nil, err

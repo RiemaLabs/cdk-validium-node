@@ -350,31 +350,7 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 			dacAddr,
 			pk,
 			dataCommitteeClient.NewFactory(),
-		)
-		if err != nil {
-			return nil, err
-		}
-	case string(dataavailability.Nubit):
-		var (
-			pk  *ecdsa.PrivateKey
-			err error
-		)
-		if isSequenceSender {
-			_, pk, err = etherman.LoadAuthFromKeyStore(c.SequenceSender.PrivateKey.Path, c.SequenceSender.PrivateKey.Password)
-			if err != nil {
-				return nil, err
-			}
-		}
-		dacAddr, err := etherman.GetDAProtocolAddr()
-		if err != nil {
-			return nil, fmt.Errorf("error getting trusted sequencer URI. Error: %v", err)
-		}
-
-		daBackend, err = datacommittee.New(
-			c.Etherman.URL,
-			dacAddr,
-			pk,
-			dataCommitteeClient.NewFactory(),
+			&c.DataAvailability,
 		)
 		if err != nil {
 			return nil, err

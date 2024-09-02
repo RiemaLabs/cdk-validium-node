@@ -212,4 +212,9 @@ Host = "zkevm-state-db"
 Port = "5432"
 EnableLog = false
 MaxConns = 200
+
+[DataAvailability]
+NubitNodeRpcURL = "http://localhost:26658"
+AuthKey = "token"
+AppName = "polygon"
 `

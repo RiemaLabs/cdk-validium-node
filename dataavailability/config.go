@@ -8,3 +8,9 @@ const (
 	DataAvailabilityCommittee DABackendType = "DataAvailabilityCommittee"
 	Nubit                     DABackendType = "Nubit"
 )
+
+type Config struct {
+	NubitNodeRpcURL string `mapstructure:"NubitNodeRpcURL"`
+	AuthKey         string `mapstructure:"AuthKey"`
+	AppName         string `mapstructure:"AppName"`
+}
