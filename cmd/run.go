@@ -329,7 +329,7 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 	var daBackend dataavailability.DABackender
 	//daProtocolName = string(dataavailability.Nubit)
 	switch daProtocolName {
-	case string(dataavailability.DataAvailabilityCommittee):
+	case string(dataavailability.Nubit):
 		var (
 			pk  *ecdsa.PrivateKey
 			err error
