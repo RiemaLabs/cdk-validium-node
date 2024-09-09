@@ -3,6 +3,7 @@ package nubit
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/0xPolygonHermez/zkevm-node/log"
 	share "github.com/RiemaLabs/nubit-node/da"
@@ -12,25 +13,34 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+const (
+	DefaultFetchTimeout  = time.Minute
+	DefaultSubmitTimeout = time.Minute
+)
+
 type NubitDABackend struct {
-	ctx    context.Context
-	ns     namespace.Namespace
-	client *client.Client
+	ctx            context.Context
+	ns             namespace.Namespace
+	client         *client.Client
+	SubmintTimeout time.Duration
+	FetchTimeout   time.Duration
 }
 
-func NewNubitDABackend(rplURL, authKey, appName string) (*NubitDABackend, error) {
+func NewNubitDABackend(node_rpc, auth_token, np string) (*NubitDABackend, error) {
 
-	cn, err := client.NewClient(context.TODO(), rplURL, authKey)
+	cn, err := client.NewClient(context.TODO(), node_rpc, auth_token)
 	if err != nil {
 		return nil, err
 	}
-	name := namespace.MustNewV0([]byte(appName))
+	name := namespace.MustNewV0([]byte(np))
 
 	log.Infof("⚙️     Nubit Namespace : %s ", string(name.ID))
 	return &NubitDABackend{
-		ns:     name,
-		client: cn,
-		ctx:    context.Background(),
+		ns:             name,
+		client:         cn,
+		ctx:            context.Background(),
+		SubmintTimeout: DefaultSubmitTimeout,
+		FetchTimeout:   DefaultFetchTimeout,
 	}, nil
 }
 
@@ -61,7 +71,9 @@ func (a *NubitDABackend) PostSequence(ctx context.Context, batchesData [][]byte)
 
 	log.Infof("🏆     Nubit send data:%+v", body)
 
+	ctx, cancel := context.WithTimeout(ctx, a.SubmintTimeout)
 	blockNumber, err := a.client.Blob.Submit(ctx, []*nodeBlob.Blob{body}, 0.01)
+	cancel()
 	if err != nil {
 		log.Errorf("🏆    NubitDABackend.Submit:%s", err)
 		return nil, err
@@ -92,7 +104,9 @@ func (a *NubitDABackend) GetSequence(ctx context.Context, batchHashes []common.H
 		return nil, err
 	}
 	log.Infof("🏆     Nubit GetSequence batchDAData:%+v", batchDAData)
+	ctx, cancel := context.WithTimeout(ctx, a.FetchTimeout)
 	blob, err := a.client.Blob.Get(context.TODO(), uint64(batchDAData.BlockNumber), a.ns.Bytes(), batchDAData.Commitment[:])
+	cancel()
 	if err != nil {
 		log.Errorf("🏆    NubitDABackend.GetSequence.Blob.Get:%s", err)
 		return nil, err

@@ -68,7 +68,7 @@ func New(
 		return nil, err
 	}
 
-	backend, err := nubit.NewNubitDABackend(cfg.NubitNodeRpcURL, cfg.AuthKey, cfg.AppName)
+	backend, err := nubit.NewNubitDABackend(cfg.NodeRpc, cfg.AuthToken, cfg.Namespace)
 	if err != nil {
 		log.Errorf("error NewNubitDABackend  %s: %+v", l1RPCURL, err)
 		return nil, err

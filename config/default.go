@@ -214,7 +214,7 @@ EnableLog = false
 MaxConns = 200
 
 [DataAvailability]
-NubitNodeRpcURL = "http://localhost:26658"
-AuthKey = "token"
-AppName = "polygon"
+NodeRpc = "http://localhost:26658"
+AuthToken = "token"
+Namespace = "polygoncdk"
 `

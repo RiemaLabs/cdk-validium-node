@@ -10,7 +10,7 @@ const (
 )
 
 type Config struct {
-	NubitNodeRpcURL string `mapstructure:"NubitNodeRpcURL"`
-	AuthKey         string `mapstructure:"AuthKey"`
-	AppName         string `mapstructure:"AppName"`
+	NodeRpc   string `mapstructure:"NodeRpc"`
+	AuthToken string `mapstructure:"AuthToken"`
+	Namespace string `mapstructure:"Namespace"`
 }
