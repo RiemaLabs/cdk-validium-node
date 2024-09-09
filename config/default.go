@@ -214,7 +214,7 @@ EnableLog = false
 MaxConns = 200
 
 [DataAvailability]
-NodeRpc = "http://localhost:26658"
+NodeRPC = "http://localhost:26658"
 AuthToken = "token"
 Namespace = "polygoncdk"
 `

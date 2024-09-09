@@ -10,7 +10,7 @@ const (
 )
 
 type Config struct {
-	NodeRpc   string `mapstructure:"NodeRpc"`
+	NodeRPC   string `mapstructure:"NodeRPC"`
 	AuthToken string `mapstructure:"AuthToken"`
 	Namespace string `mapstructure:"Namespace"`
 }
