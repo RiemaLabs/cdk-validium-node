@@ -2,141 +2,115 @@ package nubit
 
 import (
 	"context"
-	"crypto/ecdsa"
-	"encoding/hex"
-	"strings"
+	"fmt"
 	"time"
 
-	daTypes "github.com/0xPolygon/cdk-data-availability/types"
 	"github.com/0xPolygonHermez/zkevm-node/log"
+	share "github.com/RiemaLabs/nubit-node/da"
+	client "github.com/RiemaLabs/nubit-node/rpc/rpc/client"
+	nodeBlob "github.com/RiemaLabs/nubit-node/strucs/btx"
+	"github.com/RiemaLabs/nubit-validator/da/namespace"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/rollkit/go-da"
-	"github.com/rollkit/go-da/proxy"
 )
 
-// NubitDABackend implements the DA integration with Nubit DA layer
+const (
+	DefaultFetchTimeout  = time.Minute
+	DefaultSubmitTimeout = time.Minute
+)
+
 type NubitDABackend struct {
-	client     da.DA
-	config     *Config
-	namespace  da.Namespace
-	privKey    *ecdsa.PrivateKey
-	commitTime time.Time
+	ctx            context.Context
+	ns             namespace.Namespace
+	client         *client.Client
+	SubmintTimeout time.Duration
+	FetchTimeout   time.Duration
 }
 
-// NewNubitDABackend is the factory method to create a new instance of NubitDABackend
-func NewNubitDABackend(
-	cfg *Config,
-	privKey *ecdsa.PrivateKey,
-) (*NubitDABackend, error) {
-	log.Infof("NubitDABackend config: %#v", cfg)
-	cn, err := proxy.NewClient(cfg.NubitRpcURL, cfg.NubitAuthKey)
-	if err != nil {
-		return nil, err
-	}
+func NewNubitDABackend(node_rpc, auth_token, np string) (*NubitDABackend, error) {
 
-	hexStr := hex.EncodeToString([]byte(cfg.NubitNamespace))
-	name, err := hex.DecodeString(strings.Repeat("0", NubitNamespaceBytesLength-len(hexStr)) + hexStr)
-	if err != nil {
-		log.Errorf("error decoding NubitDA namespace config: %+v", err)
-		return nil, err
-	}
+	cn, err := client.NewClient(context.TODO(), node_rpc, auth_token)
 	if err != nil {
 		return nil, err
 	}
-	log.Infof("NubitDABackend namespace: %s", string(name))
+	name := namespace.MustNewV0([]byte(np))
 
+	log.Infof("⚙️     Nubit Namespace : %s ", string(name.ID))
 	return &NubitDABackend{
-		config:     cfg,
-		privKey:    privKey,
-		namespace:  name,
-		client:     cn,
-		commitTime: time.Now(),
+		ns:             name,
+		client:         cn,
+		ctx:            context.Background(),
+		SubmintTimeout: DefaultSubmitTimeout,
+		FetchTimeout:   DefaultFetchTimeout,
 	}, nil
 }
 
-// Init initializes the NubitDA backend
-func (backend *NubitDABackend) Init() error {
+func (a *NubitDABackend) Init() error {
 	return nil
 }
 
 // PostSequence sends the sequence data to the data availability backend, and returns the dataAvailabilityMessage
 // as expected by the contract
-func (backend *NubitDABackend) PostSequence(ctx context.Context, batchesData [][]byte) ([]byte, error) {
-	// Check commit time interval validation
-	lastCommitTime := time.Since(backend.commitTime)
-	if lastCommitTime < NubitMinCommitTime {
-		time.Sleep(NubitMinCommitTime - lastCommitTime)
-	}
-
-	// Encode NubitDA blob data
-	data := EncodeSequence(batchesData)
-	ids, err := backend.client.Submit(ctx, [][]byte{data}, -1, backend.namespace)
-	// Ensure only a single blob ID returned
-	if err != nil || len(ids) != 1 {
-		log.Errorf("Submit batch data with NubitDA client failed: %s", err)
-		return nil, err
-	}
-	blobID := ids[0]
-	backend.commitTime = time.Now()
-	log.Infof("Data submitted to Nubit DA: %d bytes against namespace %v sent with id %#x", len(data), backend.namespace, blobID)
-
-	// Get proof of batches data on NubitDA layer
-	tries := uint64(0)
-	posted := false
-	for tries < backend.config.NubitGetProofMaxRetry {
-		dataProof, err := backend.client.GetProofs(ctx, [][]byte{blobID}, backend.namespace)
-		if err != nil {
-			log.Infof("Proof not available: %s", err)
-		}
-		if len(dataProof) == 1 {
-			// TODO: add data proof to DA message
-			log.Infof("Data proof from Nubit DA received: %+v", dataProof)
-			posted = true
-			break
-		}
-
-		// Retries
-		tries += 1
-		time.Sleep(backend.config.NubitGetProofWaitPeriod.Duration)
-	}
-	if !posted {
-		log.Errorf("Get blob proof on Nubit DA failed: %s", err)
-		return nil, err
-	}
-
-	// Get abi-encoded data availability message
-	sequence := daTypes.Sequence{}
-	for _, seq := range batchesData {
-		sequence = append(sequence, seq)
-	}
-	signedSequence, err := sequence.Sign(backend.privKey)
+func (a *NubitDABackend) PostSequence(ctx context.Context, batchesData [][]byte) ([]byte, error) {
+	encodedData, err := MarshalBatchData(batchesData)
 	if err != nil {
-		log.Errorf("Failed to sign sequence with pk: %v", err)
-		return nil, err
-	}
-	signature := append(sequence.HashToSign(), signedSequence.Signature...)
-	blobData := BlobData{
-		BlobID:    blobID,
-		Signature: signature,
+		log.Errorf("🏆    NubitDABackend.MarshalBatchData:%s", err)
+		return encodedData, err
 	}
 
-	return TryEncodeToDataAvailabilityMessage(blobData)
+	nsp, err := share.NamespaceFromBytes(a.ns.Bytes())
+	if nil != err {
+		log.Errorf("🏆    NubitDABackend.NamespaceFromBytes:%s", err)
+		return nil, err
+	}
+
+	body, err := nodeBlob.NewBlobV0(nsp, encodedData)
+	if nil != err {
+		log.Errorf("🏆    NubitDABackend.NewBlobV0:%s", err)
+		return nil, err
+	}
+
+	log.Infof("🏆     Nubit send data:%+v", body)
+
+	ctx, cancel := context.WithTimeout(ctx, a.SubmintTimeout)
+	blockNumber, err := a.client.Blob.Submit(ctx, []*nodeBlob.Blob{body}, 0.01)
+	cancel()
+	if err != nil {
+		log.Errorf("🏆    NubitDABackend.Submit:%s", err)
+		return nil, err
+	}
+
+	var batchDAData BatchDAData
+	copy(batchDAData.Commitment[:], body.Commitment)
+
+	batchDAData.BlockNumber = int64(blockNumber)
+	log.Infof("🏆  Nubit prepared DA data:%+v", batchDAData)
+
+	// todo: use bridge API data
+	returnData, err := batchDAData.Encode()
+	if err != nil {
+		return nil, fmt.Errorf("🏆  Nubit cannot encode batch data:%w", err)
+	}
+
+	log.Infof("🏆  Nubit Data submitted by sequencer:%d bytes against namespace %v sent with height %#x", len(encodedData), a.ns, blockNumber)
+
+	return returnData, nil
 }
 
-// GetSequence gets the sequence data from NubitDA layer
-func (backend *NubitDABackend) GetSequence(ctx context.Context, batchHashes []common.Hash, dataAvailabilityMessage []byte) ([][]byte, error) {
-	blobData, err := TryDecodeFromDataAvailabilityMessage(dataAvailabilityMessage)
+func (a *NubitDABackend) GetSequence(ctx context.Context, batchHashes []common.Hash, dataAvailabilityMessage []byte) ([][]byte, error) {
+	var batchDAData BatchDAData
+	err := batchDAData.Decode(dataAvailabilityMessage)
 	if err != nil {
-		log.Error("Error decoding from da message: ", err)
+		log.Errorf("🏆    NubitDABackend.GetSequence.Decode:%s", err)
 		return nil, err
 	}
-
-	reply, err := backend.client.Get(ctx, [][]byte{blobData.BlobID}, backend.namespace)
-	if err != nil || len(reply) != 1 {
-		log.Error("Error retrieving blob from NubitDA client: ", err)
+	log.Infof("🏆     Nubit GetSequence batchDAData:%+v", batchDAData)
+	ctx, cancel := context.WithTimeout(ctx, a.FetchTimeout)
+	blob, err := a.client.Blob.Get(context.TODO(), uint64(batchDAData.BlockNumber), a.ns.Bytes(), batchDAData.Commitment[:])
+	cancel()
+	if err != nil {
+		log.Errorf("🏆    NubitDABackend.GetSequence.Blob.Get:%s", err)
 		return nil, err
 	}
-
-	batchesData, _ := DecodeSequence(reply[0])
-	return batchesData, nil
+	log.Infof("🏆     Nubit GetSequence blob.data:%+v", blob.GetData())
+	return UnmarshalBatchData(blob.GetData())
 }

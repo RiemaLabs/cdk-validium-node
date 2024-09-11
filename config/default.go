@@ -219,4 +219,9 @@ Host = "zkevm-state-db"
 Port = "5432"
 EnableLog = false
 MaxConns = 200
+
+[DataAvailability]
+NodeRPC = "http://localhost:26658"
+AuthToken = "token"
+Namespace = "polygoncdk"
 `

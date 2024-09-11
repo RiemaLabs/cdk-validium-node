@@ -21,7 +21,6 @@ import (
 	"github.com/0xPolygonHermez/zkevm-node/config"
 	"github.com/0xPolygonHermez/zkevm-node/dataavailability"
 	"github.com/0xPolygonHermez/zkevm-node/dataavailability/datacommittee"
-	"github.com/0xPolygonHermez/zkevm-node/dataavailability/nubit"
 	"github.com/0xPolygonHermez/zkevm-node/db"
 	"github.com/0xPolygonHermez/zkevm-node/etherman"
 	"github.com/0xPolygonHermez/zkevm-node/ethtxmanager"
@@ -329,7 +328,7 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 	}
 	var daBackend dataavailability.DABackender
 	switch daProtocolName {
-	case string(dataavailability.DataAvailabilityCommittee):
+	case string(dataavailability.DataAvailabilityNubitDA):
 		var (
 			pk  *ecdsa.PrivateKey
 			err error
@@ -350,23 +349,8 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 			dacAddr,
 			pk,
 			dataCommitteeClient.NewFactory(),
+			&c.DataAvailability,
 		)
-		if err != nil {
-			return nil, err
-		}
-	case string(dataavailability.DataAvailabilityNubitDA):
-		var (
-			pk  *ecdsa.PrivateKey
-			err error
-		)
-		if isSequenceSender {
-			_, pk, err = etherman.LoadAuthFromKeyStore(c.SequenceSender.PrivateKey.Path, c.SequenceSender.PrivateKey.Password)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		daBackend, err = nubit.NewNubitDABackend(&c.DataAvailability, pk)
 		if err != nil {
 			return nil, err
 		}
