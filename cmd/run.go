@@ -327,9 +327,8 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 		return nil, fmt.Errorf("error getting data availability protocol name: %v", err)
 	}
 	var daBackend dataavailability.DABackender
-	//daProtocolName = string(dataavailability.Nubit)
 	switch daProtocolName {
-	case string(dataavailability.Nubit):
+	case string(dataavailability.DataAvailabilityNubitDA):
 		var (
 			pk  *ecdsa.PrivateKey
 			err error

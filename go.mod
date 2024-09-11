@@ -83,7 +83,6 @@ require (
 	github.com/gogo/protobuf v1.3.3 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/pprof v0.0.0-20240207164012-fb44976bdcd5 // indirect
@@ -126,7 +125,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/rogpeppe/go-internal v1.11.0 // indirect
+	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/rs/cors v1.8.3 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
@@ -173,8 +172,8 @@ require (
 require (
 	github.com/0xPolygon/agglayer v0.0.1
 	github.com/0xPolygon/cdk-data-availability v0.0.5
-	github.com/RiemaLabs/nubit-node v0.0.0-00010101000000-000000000000
-	github.com/RiemaLabs/nubit-validator v0.1.0-rc.1
+	github.com/RiemaLabs/nubit-node v0.1.1
+	github.com/RiemaLabs/nubit-validator v0.1.1
 	github.com/fatih/color v1.16.0
 	github.com/prometheus/client_golang v1.18.0
 	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a
@@ -193,11 +192,12 @@ require (
 	github.com/99designs/keyring v1.2.1 // indirect
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
 	github.com/Jorropo/jsync v1.0.1 // indirect
-	github.com/RiemaLabs/go-libp2p-header v0.1.0-rc.1 // indirect
-	github.com/RiemaLabs/go-libp2p-messenger v0.1.0-rc.1 // indirect
-	github.com/RiemaLabs/merkletree v0.1.0-rc.1 // indirect
-	github.com/RiemaLabs/nubit-kzg v0.20.0 // indirect
-	github.com/RiemaLabs/rsmt2d v0.11.0 // indirect
+	github.com/RiemaLabs/go-kzg-4844 v1.1.0 // indirect
+	github.com/RiemaLabs/go-libp2p-header v0.1.1 // indirect
+	github.com/RiemaLabs/go-libp2p-messenger v0.1.1 // indirect
+	github.com/RiemaLabs/merkletree v0.1.1 // indirect
+	github.com/RiemaLabs/nubit-kzg v0.1.2 // indirect
+	github.com/RiemaLabs/rsmt2d v0.1.2 // indirect
 	github.com/Workiva/go-datastructures v1.0.53 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/aws/aws-sdk-go v1.44.122 // indirect
@@ -253,6 +253,7 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gogo/gateway v1.1.0 // indirect
 	github.com/golang/glog v1.2.0 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/flatbuffers v1.12.1 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
@@ -260,7 +261,7 @@ require (
 	github.com/google/orderedcode v0.0.1 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
-	github.com/googleapis/gax-go/v2 v2.12.2 // indirect
+	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/grafana/otel-profiling-go v0.5.1 // indirect
@@ -341,7 +342,7 @@ require (
 	github.com/miekg/dns v1.1.58 // indirect
 	github.com/mikioh/tcpinfo v0.0.0-20190314235526-30a79bb1804b // indirect
 	github.com/mikioh/tcpopt v0.0.0-20190314235656-172688c1accc // indirect
-	github.com/mimoo/StrobeGo v0.0.0-20220103164710-9a04d6ca976b // indirect
+	github.com/mimoo/StrobeGo v0.0.0-20210601165009-122bf33a46e0 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -372,7 +373,7 @@ require (
 	github.com/raulk/go-watchdog v1.3.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/regen-network/cosmos-proto v0.3.1 // indirect
-	github.com/rollkit/go-da v0.4.0 // indirect
+	github.com/rollkit/go-da v0.5.0 // indirect
 	github.com/rs/zerolog v1.31.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
@@ -386,13 +387,12 @@ require (
 	github.com/whyrusleeping/cbor v0.0.0-20171005072247-63513f603b11 // indirect
 	github.com/whyrusleeping/cbor-gen v0.0.0-20240109153615-66e95c3e8a87 // indirect
 	github.com/whyrusleeping/go-keyspace v0.0.0-20160322163242-5b898ac5add1 // indirect
-	github.com/yaoyaojia/go-kzg-4844 v0.0.0-20240402155715-723a242b6936 // indirect
 	github.com/zondax/hid v0.9.2 // indirect
 	github.com/zondax/ledger-go v0.14.3 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.49.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.47.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.47.0 // indirect
 	go.opentelemetry.io/otel v1.24.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.21.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
@@ -405,27 +405,20 @@ require (
 	golang.org/x/oauth2 v0.17.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	gonum.org/v1/gonum v0.14.0 // indirect
-	google.golang.org/api v0.169.0 // indirect
+	google.golang.org/api v0.162.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240311132316-a219d84964c2 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240227224415-6ceb2ff114de // indirect
 	lukechampine.com/blake3 v1.2.1 // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
 replace (
-	github.com/RiemaLabs/go-libp2p-header => ../go-header
-	github.com/RiemaLabs/go-libp2p-messenger => ../go-libp2p-messenger
-	github.com/RiemaLabs/merkletree => ../merkletree
-	github.com/RiemaLabs/nubit-kzg => ../nubit-kzg
-	github.com/RiemaLabs/nubit-node => ../nubit-node
-	github.com/RiemaLabs/nubit-validator => ../nubit-app
-	github.com/RiemaLabs/rsmt2d => ../rsmt2d
-	github.com/cosmos/cosmos-sdk => ../cosmos-sdk
-	github.com/cosmos/ledger-cosmos-go => github.com/cosmos/ledger-cosmos-go v0.12.4
-	github.com/filecoin-project/dagstore => ../dagstore
+	github.com/cosmos/cosmos-sdk => github.com/RiemaLabs/cosmos-sdk v0.46.16-nubit.2
+	github.com/filecoin-project/dagstore => github.com/RiemaLabs/dagstore v0.1.0-nubit.1
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+	// broken goleveldb needs to be replaced for the cosmos-sdk and nubit-validator
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-	github.com/tendermint/tendermint => ../nubit-core
+	github.com/tendermint/tendermint => github.com/RiemaLabs/nubit-core v0.1.1
 )

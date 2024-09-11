@@ -16,12 +16,12 @@
         "inputs": [
             {
                 "internalType": "bytes32",
-                "name": "hash",
+                "name": "msg_hash",
                 "type": "bytes32"
             },
             {
                 "internalType": "bytes",
-                "name": "dataAvailabilityMessage",
+                "name": "_signature",
                 "type": "bytes"
             }
         ],

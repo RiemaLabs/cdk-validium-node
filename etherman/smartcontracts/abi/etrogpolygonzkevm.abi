@@ -1097,6 +1097,16 @@
                 "internalType": "bytes",
                 "name": "dataAvailabilityMessage",
                 "type": "bytes"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "msg_hash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_signature",
+                "type": "bytes"
             }
         ],
         "name": "sequenceBatchesValidium",
